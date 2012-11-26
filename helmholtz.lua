@@ -6,21 +6,21 @@ require 'torch'
 require 'dok'
 
 do 
-	local Helmholtz = torch.class('Helmholtz')
+   local Helmholtz = torch.class('Helmholtz')
 
-	function Helmholtz:__init()
-		-- dimensions of the layers
-		self.nx = 1
-		self.ny = 6
-		self.nd = 9
-		-- generative distribution
-		self.bG = torch.zeros(self.nx, 1)
-		self.WG = torch.zeros(self.ny, self.nx+1)
-		self.VG = torch.zeros(self.nd, self.ny+1)
-		-- recognition distribution
-		self.WR = torch.zeros(self.nx, self.ny+1)
-		self.VR = torch.zeros(self.ny, self.nd+1)
-	end
+   function Helmholtz:__init()
+      -- dimensions of the layers
+      self.nx = 1
+      self.ny = 6
+      self.nd = 9
+      -- generative distribution
+      self.bG = torch.zeros(self.nx, 1)
+      self.WG = torch.zeros(self.ny, self.nx+1)
+      self.VG = torch.zeros(self.nd, self.ny+1)
+      -- recognition distribution
+      self.WR = torch.zeros(self.nx, self.ny+1)
+      self.VR = torch.zeros(self.ny, self.nd+1)
+   end
 
 end
 
