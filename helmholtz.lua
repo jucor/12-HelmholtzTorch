@@ -22,5 +22,8 @@ do
       self.VR = torch.zeros(self.ny, self.nd+1)
    end
 
-end
+	function Helmholtz:Wake(data)
+	 	 
+	end
 
+end
