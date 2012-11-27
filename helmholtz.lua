@@ -22,13 +22,13 @@ end
 do 
    local Helmholtz = torch.class('Helmholtz')
 
-   function Helmholtz:__init()
+   function Helmholtz:__init(nx, ny, nd, step)
       -- learning step
-      self.step = 0.1
+      self.step = step or 0.1
       -- dimensions of the layers
-      self.nx = 1
-      self.ny = 6
-      self.nd = 9
+      self.nx = nx or 1
+      self.ny = ny or 6
+      self.nd = nd or 9
       -- generative distribution
       self.bG = torch.zeros(self.nx, 1)
       self.WG = torch.zeros(self.ny, self.nx+1)
@@ -86,4 +86,15 @@ do
 	end
 
 
+end
+
+function SampleKirby(N) 
+   N = N or 1
+   dice = 
+   local d = torch.zeros(3,3)
+
+end
+
+function DemoKirby() 
+     
 end

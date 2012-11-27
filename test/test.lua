@@ -2,7 +2,7 @@ package.loaded.hemlotz = nil
 require 'helmholtz'
 
 mytest = {}
- 
+,1 
 tester = torch.Tester()
 
 function mytest.TestInstantiate()
@@ -62,7 +62,7 @@ function mytest.TestSleep()
    local oldWR = h.WR:clone()
 	h:Sleep()
    tester:assertge((oldVR-h.VR):abs():max(), 1e-16, "h.VR has not changed") 
-   tester:assertge((oldWR-h.WR):abs():max(), 1e-16, "h.VR has not changed") 
+   tester:assertge((oldmR-h.WR):abs():max(), 1e-16, "h.VR has not changed") 
 end
  
 function mytest.TestFail()
