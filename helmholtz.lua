@@ -85,7 +85,6 @@ do
       self.WR:addmm(step, (x[{{1,self.nx}}] - xi), y:t())
 	end
 
-
 end
 
 function SampleKirby(N) 

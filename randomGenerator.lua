@@ -1,14 +1,17 @@
-function CumsumAndNormalize(p)
+-- Computes the cdf of a discrete distribution, normalizing it as needed
+function ComputeCDF(p)
    local pnorm = p:resize(p:nElement(),1):cumsum(1)
-   local renorm = pnorm[-1][1]
-   if renorm < 1e-16 then error('Not enough positive probabilities') end
-   return pnorm:resizeAs(p) / renorm
+   local totalmass = pnorm[-1][1]
+   if totalmass < 1e-16 then error('Not enough positive probabilities') end
+   return pnorm:resizeAs(p) / totalmass
 end
 
+-- Sample N iid from a distribution on {1,..,#p}, crudely, O(N #p) complexity
 function RandomInteger(p, N)
    N = N or 1
-   local cdf = CumsumAndNormalize(p)
-   return apply(torch.rand(N), function(x) cdf:lt(x):sum() end)
+   local cdf = ComputeCDF(p)
+   local uniform = torch.rand(N)
+   return uniform:apply(function(x) return cdf:lt(x):sum()+1 end)
 end
 
 
