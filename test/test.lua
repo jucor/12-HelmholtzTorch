@@ -62,14 +62,21 @@ function mytest.TestSleep()
    local oldWR = h.WR:clone()
 	h:Sleep()
    tester:assertge((oldVR-h.VR):abs():max(), 1e-16, "h.VR has not changed") 
-   tester:assertge((oldmR-h.WR):abs():max(), 1e-16, "h.VR has not changed") 
+   tester:assertge((oldWR-h.WR):abs():max(), 1e-16, "h.WR has not changed") 
 end
  
 function mytest.TestFail()
-	function failure()
+	local function failure()
 		h.FunctionThatDoesNotExist()
 	end
-	assert(pcall(failure) == false)
+	tester:assert(pcall(failure) == false, 'pcall to nonexisting function should have failed')
+end
+
+function mytest.TestKirbyGeneration()
+   local d = SampleKirby(1)
+   tester:asserteq(d:dim(), 2, 'not large enough')
+   tester:asserteq(d:size(1), 3, 'not 3 rows')
+   tester:asserteq(d:size(2), 3, 'not 3 columns')
 end
 
 tester:add(mytest)

@@ -87,11 +87,17 @@ do
 
 end
 
-function SampleKirby(N) 
+function SampleKirby() 
    N = N or 1
-   dice = 
    local d = torch.zeros(3,3)
-
+   -- flip one column with proba 1/3
+   local col = torch.random(1,3)
+   d[{{},col}] = 1
+   -- transpose to horizontal with proba 1/3
+   if torch.rand(1)[1] < .3 then d:t() end
+   -- proba 1/2 to be white on black
+   if torch.rand(1)[1] < .5 then d:apply(function(x) return 1 - x end) end
+   return d
 end
 
 function DemoKirby() 
