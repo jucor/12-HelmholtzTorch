@@ -77,6 +77,16 @@ function mytest.TestKirbyGeneration()
    tester:asserteq(d:dim(), 2, 'not large enough')
    tester:asserteq(d:size(1), 3, 'not 3 rows')
    tester:asserteq(d:size(2), 3, 'not 3 columns')
+   -- do no test frequencies, since they are random --
+end
+
+function mytest.TestCountFreqs() 
+   local d = torch.zeros(2,3,3)
+   local f = CountFreqs(d)
+   for k,v in pairs(f) do
+      tester:asserteq(k, torch.zeros(3,3):storage():totable(), 'stored another key than zeros')
+      tester:asserteq(v, 2, 'counted  ' .. v .. ' not 2')
+   end
 end
 
 tester:add(mytest)
