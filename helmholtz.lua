@@ -1,27 +1,24 @@
 -- Implement the wake-sleep algorithm, as in [1]
 -- [1] Kirby, K. G. A Tutorial on Helmholtz s. Department of Computer Science, Northern Kentucky Unviersity, June 2006. http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.112.7019&rep=rep1&type=pdf.
 
-
 require 'torch'
 require 'image'
 
+do
+   function Sigmoid(x) 
+      return x:apply(function(x) return 1/(1+math.exp(-x)) end)
+   --   x:mul(-1):exp():add(1):pow(-1)
+   --  return x
+   end
 
-function Sigmoid(x) 
-   return x:apply(function(x) return 1/(1+math.exp(-x)) end)
---   x:mul(-1):exp():add(1):pow(-1)
---  return x
-end
+   function ExtendColumnByOne(x) 
+      assert(x:size(2) == 1, 'not a column vector')
+      x:resize(x:nElement()+1,1)
+      x[x:nElement()] = 1
+      return x
+   end
 
-function ExtendColumnByOne(x) 
-   assert(x:size(2) == 1, 'not a column vector')
-   x:resize(x:nElement()+1,1)
-   x[x:nElement()] = 1
-   return x
-end
-
-do 
    local Helmholtz = torch.class('Helmholtz')
-
    function Helmholtz:__init(nx, ny, nd, step)
       -- learning step
       self.step = step or 0.1
@@ -38,7 +35,7 @@ do
       self.VR = torch.zeros(self.ny, self.nd+1)
    end
 
-	function Helmholtz:Wake(d, step)
+   function Helmholtz:Wake(d, step)
       step = step or self.step
       -- Experience reality!
       local d = ExtendColumnByOne(d)
@@ -59,9 +56,9 @@ do
       self.bG:add(step, x[{{1,self.nx}}] - xi)
       self.WG:addmm(step, (y[{{1,self.ny}}] - psi), x:t())
       self.VG:addmm(step, (d[{{1,self.nd}}] - delta), y:t())
-	end
+   end
 
-	function Helmholtz:Sleep(step)
+   function Helmholtz:Sleep(step)
       step = step or self.step
       -- Initiate a dream!
       local x = ExtendColumnByOne(
@@ -83,40 +80,6 @@ do
       -- Adjust generative weights by delta rule 
       self.VR:addmm(step, (y[{{1,self.ny}}] - psi), d:t())
       self.WR:addmm(step, (x[{{1,self.nx}}] - xi), y:t())
-	end
-
-end
-
-function SampleKirby() 
-   local d = torch.zeros(3,3)
-   -- flip one column chosen with proba 1/3
-   local col = torch.random(1,3)
-   d[{{},col}] = 1
-   -- transpose to horizontal with proba 1/3
-   if torch.rand(1)[1] < .3 then d:t() end
-   -- flip to white on black with proba 1/2 
-   if torch.rand(1)[1] < .5 then d:apply(function(x) return 1 - x end) end
-   return d
-end
-
-function DemoKirby() 
-   local N = 120
-   local d = torch.zeros(N,3,3)
-   for i=1,N do
-      d[i] = SampleKirby()
    end
-   image.display{image=d,zoom=30,padding=0}
-end
 
-function CountFreqs(d)
-   local freqs = {}
-   for i=1,d:size(1) do
-      local t = d[i]:storage():totable()
-      if freqs[t] == nil then 
-         freqs[t] = 1
-      else
-         freqs[t] = freqs[t] + 1
-      end
-   end
-   return freqs
 end
