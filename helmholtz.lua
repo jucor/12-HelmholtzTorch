@@ -6,9 +6,9 @@ require 'image'
 
 do
    function Sigmoid(x) 
-      return x:apply(function(x) return 1/(1+math.exp(-x)) end)
-   --   x:mul(-1):exp():add(1):pow(-1)
-   --  return x
+    --  return x:apply(function(x) return 1/(1+math.exp(-x)) end)
+      x:mul(-1):exp():add(1):pow(-1)
+      return x
    end
 
    function ExtendColumnByOne(x) 
@@ -83,3 +83,5 @@ do
    end
 
 end
+
+
