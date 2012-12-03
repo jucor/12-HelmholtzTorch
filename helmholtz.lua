@@ -3,6 +3,7 @@
 
 require 'torch'
 require 'image'
+require 'dok'
 
 do
    function Sigmoid(x)
@@ -25,15 +26,19 @@ do
    end
 
    local Helmholtz = torch.class('Helmholtz')
-   function Helmholtz:__init(nx, ny, nd, stepW, stepV, stepB)
-      -- learning step
-      self.stepB = stepB or 0.01
-      self.stepW = stepW or 0.01
-      self.stepV = stepV or 0.15
-      -- dimensions of the layers
-      self.nx = nx or 1
-      self.ny = ny or 6
-      self.nd = nd or 9
+   function Helmholtz:__init(...)
+      _, self.nx, self.ny, self.nd, self.stepB, self.stepW, self.stepV, self.exact = dok.unpack(
+         {...},
+         'Constructor of a Helmholtz machine',
+         'given a structure, returns an instance of the Helmholtz machine class',
+         {arg='nx',type='number',help='number of neurons on top layer', default=1},
+         {arg='ny',type='number',help='number of neurons on middle layer', default=6},
+         {arg='nd',type='number',help='number of input in the data', default=9},
+         {arg='stepB',type='number',help='stepsize for gradient on top layer', default=0.01},
+         {arg='stepW',type='number',help='stepsize for gradient on middle layer', default=0.01},
+         {arg='stepV',type='number',help='stepsize for gradient on bottom layer', default=0.15},
+         {arg='exact',type='boolean',help='if on, learning will use exact backpropagation instead of sampling intermediate neurons', default=false}
+      )
       -- generative distribution
       self.bG = torch.zeros(self.nx, 1)
       self.WG = torch.zeros(self.ny, self.nx+1)

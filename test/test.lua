@@ -12,6 +12,9 @@ function mytest.TestInstantiate()
    tester:assertTensorEq(h.bG, torch.zeros(1, 1), 1e-16, "bG not zero")
    tester:assertTensorEq(h.WG, torch.zeros(6, 2), 1e-16, "WG not zero")
    tester:assertTensorEq(h.VG, torch.zeros(9, 7), 1e-16, "VG not zero")
+
+   h = Helmholtz({nx=19})
+   tester:asserteq(h.nx, 19, "named arguments not taken into account")
 end
 
 function mytest.TestInitialize()
