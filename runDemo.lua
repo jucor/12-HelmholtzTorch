@@ -1,3 +1,3 @@
 #! /usr/bin/env torch
 require 'demoKirby'
-DemoKirby()
+DemoKirby(60000)

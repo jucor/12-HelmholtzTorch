@@ -17,14 +17,14 @@ function mytest.TestCountFreqs()
    local f = CountFreqs(d)
    for k,v in pairs(f) do
       tester:asserteq(k, HashImage(torch.zeros(3,3)), 'stored another key than zeros')
-      tester:asserteq(v, 2, 'counted  ' .. v .. ' not 2')
+      tester:asserteq(v, 1, 'counted  ' .. v .. ' not 1')
   end
 
    -- count one 0 and one 1
    d[2]:fill(1)
    f = CountFreqs(d)
    for k,v in pairs(f) do
-      tester:asserteq(v, 1, 'counted  ' .. v .. ' for key ' .. k .. ', not 1')
+      tester:asserteq(v, .5, 'counted  ' .. v .. ' for key ' .. k .. ', not 0.5')
   end
 end
 

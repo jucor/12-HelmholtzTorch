@@ -11,7 +11,13 @@ do
       return x
    end
 
-   function ExtendColumnByOne(x) 
+   function ShrinkColumnByOne(x)
+      assert(x:size(2) == 1, 'not a column vector')
+      x:resize(x:nElement()-1,1)
+      return x
+   end
+
+   function ExtendColumnByOne(x)
       assert(x:size(2) == 1, 'not a column vector')
       x:resize(x:nElement()+1,1)
       x[x:nElement()] = 1
@@ -19,9 +25,11 @@ do
    end
 
    local Helmholtz = torch.class('Helmholtz')
-   function Helmholtz:__init(nx, ny, nd, step)
+   function Helmholtz:__init(nx, ny, nd, stepW, stepV, stepB)
       -- learning step
-      self.step = step or 0.1
+      self.stepB = stepB or 0.01
+      self.stepW = stepW or 0.01
+      self.stepV = stepV or 0.15
       -- dimensions of the layers
       self.nx = nx or 1
       self.ny = ny or 6
@@ -35,8 +43,7 @@ do
       self.VR = torch.zeros(self.ny, self.nd+1)
    end
 
-   function Helmholtz:Wake(d, step)
-      step = step or self.step
+   function Helmholtz:Wake(d)
       -- Experience reality!
       local d = ExtendColumnByOne(d)
       -- Pass sense datum up through recognition network
@@ -53,13 +60,12 @@ do
       local delta = Sigmoid(torch.mm(self.VG, y))
 
       -- Adjust generative weights by delta rule 
-      self.bG:add(step, x[{{1,self.nx}}] - xi)
-      self.WG:addmm(step, (y[{{1,self.ny}}] - psi), x:t())
-      self.VG:addmm(step, (d[{{1,self.nd}}] - delta), y:t())
+      self.bG:add(self.stepB, x[{{1,self.nx}}] - xi)
+      self.WG:addmm(self.stepW, (y[{{1,self.ny}}] - psi), x:t())
+      self.VG:addmm(self.stepV, (d[{{1,self.nd}}] - delta), y:t())
    end
 
-   function Helmholtz:Sleep(step)
-      step = step or self.step
+   function Helmholtz:SampleExtended()
       -- Initiate a dream!
       local x = ExtendColumnByOne(
                Sigmoid(self.bG:clone()):apply(torch.bernoulli)
@@ -73,15 +79,23 @@ do
                Sigmoid(torch.mm(self.VG, y)):apply(torch.bernoulli)
             )
 
+      return d, y, x
+   end
+
+   function Helmholtz:Sample()
+      d, y, x = self:SampleExtended()
+      return ShrinkColumnByOne(d), ShrinkColumnByOne(y), ShrinkColumnByOne(x)
+   end
+
+   function Helmholtz:Sleep()
+      local d, y, x = self:SampleExtended()
+
       -- Pass back up through recognition network, saving computer probabilities
       local psi = Sigmoid(torch.mm(self.VR, d))
       local xi = Sigmoid(torch.mm(self.WR, y))
 
       -- Adjust generative weights by delta rule 
-      self.VR:addmm(step, (y[{{1,self.ny}}] - psi), d:t())
-      self.WR:addmm(step, (x[{{1,self.nx}}] - xi), y:t())
+      self.VR:addmm(self.stepV, (y[{{1,self.ny}}] - psi), d:t())
+      self.WR:addmm(self.stepW, (x[{{1,self.nx}}] - xi), y:t())
    end
-
 end
-
-

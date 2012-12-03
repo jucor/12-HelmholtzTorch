@@ -29,6 +29,19 @@ function mytest.TestSigmoid()
    end
 end
 
+function mytest.TestShrinkColumnByOne()
+   local v = {10, 11, 12}
+   local x = torch.Tensor({v}):t()
+   tester:asserteq(x:nElement(), 3, 'wrong size before')
+   tester:asserteq(x:size(1), 3, 'wrong number of rows')
+   tester:asserteq(x:size(2), 1, 'wrong number of columns')
+   local y = ShrinkColumnByOne(x)
+   tester:asserteq(y, x, 'did not return the tensor')
+   tester:asserteq(x:nElement(), 2, 'wrong size after')
+   tester:asserteq(x[{1,1}], 10, 'not starting by 10')
+   tester:asserteq(x[2][1], 11, 'not ending by 11')
+end 
+
 function mytest.TestExtendColumnByOne()
    local v = {10, 11, 12}
    local x = torch.Tensor({v}):t()
@@ -40,6 +53,18 @@ function mytest.TestExtendColumnByOne()
    tester:asserteq(x:nElement(), 4, 'wrong size after')
    tester:asserteq(x[{4,1}], 1, 'not ending by 1')
    tester:asserteq(x[4][1], 1, 'not ending by 1')
+end
+
+function mytest.TestSample()
+   local h = Helmholtz()
+   local d, y, x = h:Sample()
+   tester:asserteq(x:nElement(), 1, 'wrong size')
+   tester:asserteq(y:nElement(), 6, 'wrong size')
+   tester:asserteq(d:nElement(), 9, 'wrong size')
+   d, y, x = h:SampleExtended()
+   tester:asserteq(x:nElement(), 2, 'wrong size')
+   tester:asserteq(y:nElement(), 7, 'wrong size')
+   tester:asserteq(d:nElement(), 10, 'wrong size')
 end
 
 function mytest.TestWake()
