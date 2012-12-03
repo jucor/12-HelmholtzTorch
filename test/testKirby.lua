@@ -49,7 +49,11 @@ end
 function mytest.HashImage(d)
    tester:asserteq(HashImage(torch.zeros(3,3)), 0, 'bad parse 0')
    tester:asserteq(HashImage(torch.ones(3,3)), math.pow(2,9)-1, 'bad parse 1')
-
+   local d = torch.zeros(3,3)
+   d[2][1] = 1
+   h1 = HashImage(d)
+   h2 = HashImage(d:t())
+   tester:assert(h1 ~= h2, 'hash invariant by transpose')
 end
 
 tester:add(mytest)

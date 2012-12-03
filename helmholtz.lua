@@ -5,7 +5,7 @@ require 'torch'
 require 'image'
 
 do
-   function Sigmoid(x) 
+   function Sigmoid(x)
     --  return x:apply(function(x) return 1/(1+math.exp(-x)) end)
       x:mul(-1):exp():add(1):pow(-1)
       return x
@@ -43,7 +43,7 @@ do
       self.VR = torch.zeros(self.ny, self.nd+1)
    end
 
-   function Helmholtz:Wake(d)
+   function Helmholtz:Wake(d )
       -- Experience reality!
       local d = ExtendColumnByOne(d)
       -- Pass sense datum up through recognition network

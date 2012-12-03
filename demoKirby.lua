@@ -2,7 +2,7 @@ require 'helmholtz'
 
 function HashImage(d)
    local hash = 0
-   local flat = d:resize(9,1)
+   local flat = torch.reshape(d,9,1)
    for i=1,9 do
       hash = hash*2 + flat[i][1]
    end
@@ -40,7 +40,7 @@ function SampleKirby()
 end
 
 function EstimateDistribution(sampler, N)
-   N = N or 10000
+   N = N or 100000
    local d = torch.zeros(N,3,3)
    for i=1,N do
       d[i] = sampler()
@@ -84,7 +84,7 @@ function DemoKirby(T)
    print('* Training ' .. T .. ' steps')
    for k = 1,T do
       d = SampleKirby()
-      h:Wake(d:resize(9,1))
+      h:Wake(torch.reshape(d,9,1))
       h:Sleep()
       if math.mod(k,math.ceil(T/100)) == 0 then 
          io.write('.')
