@@ -1,10 +1,11 @@
 require 'helmholtz'
 
 function HashImage(d)
-   local t = d:storage():totable()
    local hash = 0
-   for i=1,9 do
-      hash = 2*hash + t[i]
+   for i=1,3 do
+      for j=1,3 do
+         hash = hash*2 + d[i][j]
+      end
    end
    return hash
 end
@@ -13,7 +14,6 @@ function CountFreqs(d)
    local freqs = {}
    for i=1,d:size(1) do
       local h = HashImage(d[i])
-      print('Hash resut ' .. h .. ' for picture:\n' .. tostring(d[i]))
       if freqs[h] == nil then
          freqs[h] = 1
       else
