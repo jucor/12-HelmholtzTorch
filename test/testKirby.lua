@@ -12,11 +12,19 @@ function mytest.TestKirbyGeneration()
 end
 
 function mytest.TestCountFreqs()
+   -- count two 0s
    local d = torch.zeros(2,3,3)
    local f = CountFreqs(d)
    for k,v in pairs(f) do
       tester:asserteq(k, HashImage(torch.zeros(3,3)), 'stored another key than zeros')
       tester:asserteq(v, 2, 'counted  ' .. v .. ' not 2')
+  end
+
+   -- count one 0 and one 1
+   d[2]:fill(1)
+   f = CountFreqs(d)
+   for k,v in pairs(f) do
+      tester:asserteq(v, 1, 'counted  ' .. v .. ' for key ' .. k .. ', not 1')
   end
 end
 
@@ -36,6 +44,11 @@ function mytest.TestKeying()
    keyOnValue[hash(k1)] = 1
    keyOnValue[hash(k2)] = 3
    tester:assert(keyOnAddress[hash(k1)] == keyOnAddress[hash(k2)], 'accessed values based on key address, not hash value')
+end
+
+function mytest.HashImage(d)
+   tester:asserteq(HashImage(torch.zeros(3,3)), 0, 'bad parse 0')
+   tester:asserteq(HashImage(torch.ones(3,3)), math.pow(2,9)-1, 'bad parse 1')
 
 end
 

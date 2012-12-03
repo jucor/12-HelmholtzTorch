@@ -13,6 +13,7 @@ function CountFreqs(d)
    local freqs = {}
    for i=1,d:size(1) do
       local h = HashImage(d[i])
+      print('Hash resut ' .. h .. ' for picture:\n' .. tostring(d[i]))
       if freqs[h] == nil then
          freqs[h] = 1
       else
@@ -35,11 +36,14 @@ function SampleKirby()
 end
 
 function DemoKirby()
-   local N = 120
+   local N = 1000
    local d = torch.zeros(N,3,3)
    for i=1,N do
       d[i] = SampleKirby()
    end
-   image.display{image=d,zoom=30,padding=0}
+   image.display{image=d[{{1,16},{},{}}],zoom=30,padding=0}
+
+   local f = CountFreqs(d)
+   print(f)
 end
 
