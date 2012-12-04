@@ -62,18 +62,19 @@ end
 
 function mytest.TestGenerate()
    local h = Helmholtz()
-   local d, y, x = h:Generate()
-   tester:asserteq(x:nElement(), 1, 'wrong size')
-   tester:asserteq(y:nElement(), 6, 'wrong size')
-   tester:asserteq(d:nElement(), 9, 'wrong size')
-   d, y, x = h:GenerateExtended()
+   local d, y, x = h:GenerateExtended()
    tester:asserteq(x:nElement(), 2, 'wrong size')
    tester:asserteq(y:nElement(), 7, 'wrong size')
    tester:asserteq(d:nElement(), 10, 'wrong size')
 end
 
-function mytest.TestWake()
+function mytest.TestSample()
    local h = Helmholtz()
+   local d = h:Sample()
+   tester:asserteq(d:nElement(), 9, 'wrong size')
+end
+
+function TestWake(h)
    local d = torch.zeros(9,1)
    local oldBG = h.bG:clone()
    local oldVG = h.VG:clone()
@@ -84,15 +85,26 @@ function mytest.TestWake()
    tester:assertge((oldWG-h.WG):abs():max(), 1e-16, "h.WG has not changed") 
 end
 
-function mytest.TestSleep()
-   local h = Helmholtz()
+function TestSleep(h)
    local oldVR = h.VR:clone()
    local oldWR = h.WR:clone()
    h:Sleep()
    tester:assertge((oldVR-h.VR):abs():max(), 1e-16, "h.VR has not changed") 
    tester:assertge((oldWR-h.WR):abs():max(), 1e-16, "h.WR has not changed") 
 end
- 
+
+function mytest.TestWakeSleep(h)
+   local h = Helmholtz()
+   TestWake(h)
+   TestSleep(h)
+end
+
+function mytest.TestBackPropagate(h)
+   local h = Helmholtz{backpropagation = true}
+   TestWake(h)
+   TestSleep(h)
+end
+
 function mytest.TestFail()
    local function failure()
       h.FunctionThatDoesNotExist()
