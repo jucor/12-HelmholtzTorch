@@ -46,7 +46,7 @@ function mytest.TestKeying()
    tester:assert(keyOnAddress[hash(k1)] == keyOnAddress[hash(k2)], 'accessed values based on key address, not hash value')
 end
 
-function mytest.HashImage(d)
+function mytest.TestHashImage(d)
    tester:asserteq(HashImage(torch.zeros(3,3)), 0, 'bad parse 0')
    tester:asserteq(HashImage(torch.ones(3,3)), math.pow(2,9)-1, 'bad parse 1')
    local d = torch.zeros(3,3)
@@ -54,6 +54,14 @@ function mytest.HashImage(d)
    h1 = HashImage(d)
    h2 = HashImage(d:t())
    tester:assert(h1 ~= h2, 'hash invariant by transpose')
+end
+
+function mytest.TestKLD()
+   tester:asserteq(KLD({.5, .5}, {.5, .5}), 0, 'KLD with self not null')
+   tester:asserteq(KLD({.5, .5, 0}, {.5, .5}), 0, 'KLD with restricted self not null')
+   tester:asserteq(KLD({.5, .5}, {.5, .5, 0}), 0, 'KLD with extended self not null')
+   tester:asserteq(KLD({.5, .5}, {1}), math.huge, 'KLD with smaller support not infinite')
+   tester:asserteq(KLD({.5, .5}, {1, 0, 0}), math.huge, 'KLD with extended smaller support not infinite')
 end
 
 tester:add(mytest)

@@ -61,6 +61,21 @@ function PrintBest(d, Nbest)
    return sorted
 end
 
+function KLD(p, q)
+   -- sum(p log (p/q) )
+   local kld = 0
+   for x, px in pairs(p) do
+      if px > 0 then
+         local qx = q[x]
+         if qx == nil or qx == 0 then
+            return math.huge
+         end
+         kld = kld + px * math.log(px / qx)
+      end
+   end
+   return kld
+end
+
 function DemoKirby(T)
    T = T or 1000
 
