@@ -61,14 +61,18 @@ function PrintBest(d, Nbest)
    return sorted
 end
 
-function KLD(p, q)
+function KLD(p, q, qmin)
    -- sum(p log (p/q) )
    local kld = 0
    for x, px in pairs(p) do
       if px > 0 then
          local qx = q[x]
          if qx == nil or qx == 0 then
-            return math.huge
+            if qmin == nil then
+               return math.huge
+            else
+               qx = qmin
+            end
          end
          kld = kld + px * math.log(px / qx)
       end
@@ -77,7 +81,7 @@ function KLD(p, q)
 end
 
 function DemoKirby(T)
-   T = T or 1000
+   T = T or 10
 
 --[[   print('* Displaying a few sample pictures')
    local N = 16
@@ -88,28 +92,41 @@ function DemoKirby(T)
    image.display{image=d[{{1,16},{},{}}],zoom=30,padding=0} ]]
 
    print('* Counting a few sample pictures')
-   f = EstimateDistribution(SampleKirby)
-   PrintBest(f)
+   local fWorld = EstimateDistribution(SampleKirby, 1000)
+   PrintBest(fWorld)
 
-   h = Helmholtz()
+   local h = Helmholtz()
    print('* Counting a few unlearned pictures')
-   f = EstimateDistribution(function() return h:Sample() end)
+   local f = EstimateDistribution(function() return h:Sample() end, 1000)
    PrintBest(f)
 
+   local log = assert(io.open('KLD.csv','w'))
+   log:write('Iteration, HWorld, WorldH\n')
+
+   local kld = {}
    print('* Training ' .. T .. ' steps')
+   io.write(100*0/T, '% (', 0, '/', T, ')\n')
+   kld[0] = {HWorld=KLD(f,fWorld,10^-6), WorldH=KLD(fWorld, f, 10^-6)}
+   print(kld[0])
+   log:write(0, ', ', kld[0].HWorld, ', ', kld[0].WorldH, '\n')
    for k = 1,T do
-      d = SampleKirby()
+      local d = SampleKirby()
       h:Wake(torch.reshape(d,9,1))
       h:Sleep()
       if math.mod(k,math.ceil(T/100)) == 0 then 
-         io.write('.')
+         io.write(100*k/T, '% (', k, '/', T, ')\n')
          io.flush()
+         local f = EstimateDistribution(function() return h:Sample() end, 10000)
+         kld[k] = {HWorld=KLD(f,fWorld, 10^-6), WorldH=KLD(fWorld, f, 10^-6)}
+         print(kld[k])
+         log:write(k, ', ', kld[k].HWorld, ', ', kld[k].WorldH, '\n')
+         log:flush()
       end
    end
-   io.write('\n')
+   log:close()
 
-   print('* Counting a few unlearned pictures')
-   f = EstimateDistribution(function() return h:Sample() end)
+   print('* Counting a few learned pictures')
+   local f = EstimateDistribution(function() return h:Sample() end)
    PrintBest(f)
 
    return f
