@@ -1,4 +1,5 @@
 require 'helmholtz'
+require 'string'
 
 function HashImage(d)
    local hash = 0
@@ -80,6 +81,22 @@ function KLD(p, q, qmin)
    return kld
 end
 
+function ValuesToCSV(t)
+   local csv = ''
+   for _, v in pairs(t) do
+      csv = csv .. ',' .. v
+   end
+   return string.sub(csv .. '\n', 2)
+end
+
+function KeysToCSV(t)
+   local csv = ''
+   for k in pairs(t) do
+      csv = csv .. ',' .. k
+   end
+   return string.sub(csv .. '\n',2)
+end
+
 function DemoKirby(T)
    T = T or 10
 
@@ -96,19 +113,28 @@ function DemoKirby(T)
    PrintBest(fWorld)
 
    local h = Helmholtz()
-   print('* Counting a few unlearned pictures')
    local f = EstimateDistribution(function() return h:Sample() end, 1000)
+   local hBack = Helmholtz{backpropagate=true}
+   local fBack = EstimateDistribution(function() return hBack:Sample() end, 1000)
+
+   print('* Counting a few unlearned pictures')
    PrintBest(f)
 
-   local log = assert(io.open('KLD.csv','w'))
-   log:write('Iteration, HWorld, WorldH\n')
 
    local kld = {}
    print('* Training ' .. T .. ' steps')
    io.write(100*0/T, '% (', 0, '/', T, ')\n')
-   kld[0] = {HWorld=KLD(f,fWorld,10^-6), WorldH=KLD(fWorld, f, 10^-6)}
+   kld[0] = {
+      Iteration=0,
+      HWorld=KLD(f, fWorld,10^-6),
+      WorldH=KLD(fWorld, f, 10^-6),
+      HBackWorld=KLD(fBack,fWorld,10^-6),
+      WorldHBack=KLD(fWorld, fBack, 10^-6),
+      }
    print(kld[0])
-   log:write(0, ', ', kld[0].HWorld, ', ', kld[0].WorldH, '\n')
+   local log = assert(io.open('KLD.csv','w'))
+   log:write(KeysToCSV(kld[0]))
+   log:write(ValuesToCSV(kld[0]))
    for k = 1,T do
       local d = SampleKirby()
       h:Wake(torch.reshape(d,9,1))
@@ -117,9 +143,16 @@ function DemoKirby(T)
          io.write(100*k/T, '% (', k, '/', T, ')\n')
          io.flush()
          local f = EstimateDistribution(function() return h:Sample() end, 10000)
-         kld[k] = {HWorld=KLD(f,fWorld, 10^-6), WorldH=KLD(fWorld, f, 10^-6)}
+         local fBack = EstimateDistribution(function() return hBack:Sample() end, 10000)
+         kld[k] = {
+            Iteration=k,
+            HWorld=KLD(f,fWorld, 10^-6),
+            WorldH=KLD(fWorld, f, 10^-6),
+            HBackWorld=KLD(fBack,fWorld, 10^-6),
+            WorldHBack=KLD(fWorld, fBack, 10^-6),
+            }
          print(kld[k])
-         log:write(k, ', ', kld[k].HWorld, ', ', kld[k].WorldH, '\n')
+         log:write(ValuesToCSV(kld[k]))
          log:flush()
       end
    end
