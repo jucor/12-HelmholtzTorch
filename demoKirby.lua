@@ -114,7 +114,7 @@ function DemoKirby(T)
 
    local h = Helmholtz()
    local f = EstimateDistribution(function() return h:Sample() end, 1000)
-   local hBack = Helmholtz{backpropagate=true}
+   local hBack = Helmholtz{backpropagate=false}
    local fBack = EstimateDistribution(function() return hBack:Sample() end, 1000)
 
    print('* Counting a few unlearned pictures')

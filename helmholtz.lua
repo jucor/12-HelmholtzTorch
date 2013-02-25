@@ -53,7 +53,7 @@ do
          {arg='stepB', type='number', help='stepsize for gradient on top layer', default=0.01},
          {arg='stepW', type='number', help='stepsize for gradient on middle layer', default=0.01},
          {arg='stepV', type='number', help='stepsize for gradient on bottom layer', default=0.15},
-         {arg='backpropagat', type='boolean', help='if on, learning will use exact backpropagation instead of sampling intermediate neurons', default=false}
+         {arg='backpropagate', type='boolean', help='if on, learning will use exact backpropagation instead of sampling intermediate neurons', default=false}
       )
       -- generative distribution
       self.bG = torch.zeros(self.nx, 1)
